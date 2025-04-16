@@ -36,25 +36,26 @@
         button:hover {
             background-color: #0056b3;
         }
-        .output-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Ajusta el ancho mínimo según necesites */
-            gap: 10px;
+        .output-container {
             margin-top: 20px;
             border: 1px solid #eee;
             padding: 10px;
             border-radius: 4px;
-        }
-        .output-field {
-            border: 1px solid #ddd;
-            padding: 8px;
-            border-radius: 4px;
             background-color: #f9f9f9;
         }
-        .output-field label {
-            font-weight: bold;
+        .output-container label {
             display: block;
-            margin-bottom: 3px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .output-container textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-family: monospace; /* Para una mejor visualización de los datos */
         }
     </style>
 </head>
@@ -71,9 +72,10 @@
         </div>
         <button onclick="buscarRegistro()">Buscar</button>
 
-        <div id="resultados" class="output-grid" style="display: none;">
-            <h3>Resultados de la Búsqueda</h3>
-            </div>
+        <div id="resultados" class="output-container" style="display: none;">
+            <label for="fila_completa">Fila Encontrada:</label>
+            <textarea id="fila_completa" rows="10" readonly></textarea>
+        </div>
     </div>
 
     <script>
@@ -81,24 +83,9 @@
             const columnaBusqueda = document.getElementById("columna_busqueda").value;
             const criterioBusqueda = document.getElementById("criterio_busqueda").value;
             const resultadosDiv = document.getElementById("resultados");
-            resultadosDiv.style.display = "grid";
-            resultadosDiv.innerHTML = "<h3>Resultados de la Búsqueda</h3>";
-
-            // Generar los 43 campos de texto de salida (inicialmente vacíos)
-            for (let i = 0; i < 43; i++) {
-                const outputField = document.createElement("div");
-                outputField.classList.add("output-field");
-                const label = document.createElement("label");
-                label.textContent = `Campo ${i + 1}:`;
-                const input = document.createElement("input");
-                input.type = "text";
-                input.id = `resultado_${i}`;
-                input.name = `resultado_${i}`;
-                input.value = ""; // Inicialmente vacío
-                outputField.appendChild(label);
-                outputField.appendChild(input);
-                resultadosDiv.appendChild(outputField);
-            }
+            const filaCompletaTextarea = document.getElementById("fila_completa");
+            resultadosDiv.style.display = "block"; // Mostrar el contenedor de resultados
+            filaCompletaTextarea.value = ""; // Limpiar el textarea anterior
 
             fetch('http://127.0.0.1:5000/buscar_registro', {
                 method: 'POST',
@@ -113,36 +100,22 @@
             .then(response => response.json())
             .then(data => {
                 if (data && typeof data === 'object') {
-                    let i = 0;
+                    let filaTexto = "";
                     for (const key in data) {
-                        if (i < 43) {
-                            const outputInput = document.getElementById(`resultado_${i}`);
-                            if (outputInput) {
-                                outputInput.value = data[key];
-                                const label = outputInput.previousElementSibling;
-                                if (label) {
-                                    label.textContent = `${key}:`; // Usar el nombre de la columna como etiqueta
-                                }
-                                i++;
-                            }
-                        }
+                        filaTexto += `${key}: ${data[key]}\n`;
                     }
-                    if (Object.keys(data).length === 0) {
-                        resultadosDiv.innerHTML = "<p>No se encontraron resultados.</p>";
-                    }
-                } else if (data && data.error) {
-                    alert(`Error: ${data.error}`);
-                    resultadosDiv.innerHTML = `<p class="error">${data.error}</p>`;
+                    filaCompletaTextarea.value = filaTexto;
                 } else if (data && data.mensaje) {
-                    resultadosDiv.innerHTML = `<p>${data.mensaje}</p>`;
+                    filaCompletaTextarea.value = data.mensaje;
+                } else if (data && data.error) {
+                    filaCompletaTextarea.value = `Error: ${data.error}`;
                 } else {
-                    alert("Respuesta del servidor inesperada.");
+                    filaCompletaTextarea.value = "Respuesta del servidor inesperada.";
                 }
             })
             .catch(error => {
                 console.error("Error al buscar el registro:", error);
-                alert("Error al comunicarse con el servidor.");
-                resultadosDiv.innerHTML = `<p class="error">Error al comunicarse con el servidor.</p>`;
+                filaCompletaTextarea.value = "Error al comunicarse con el servidor.";
             });
         }
     </script>
