@@ -84,10 +84,11 @@
             const criterioBusqueda = document.getElementById("criterio_busqueda").value;
             const resultadosDiv = document.getElementById("resultados");
             const filaCompletaTextarea = document.getElementById("fila_completa");
-            resultadosDiv.style.display = "block"; // Mostrar el contenedor de resultados
-            filaCompletaTextarea.value = ""; // Limpiar el textarea anterior
+            resultadosDiv.style.display = "block";
+            filaCompletaTextarea.value = "";
 
-            fetch('http://127.0.0.1:5000/buscar_registro', {
+            // ¡ACTUALIZA LA URL AQUÍ!
+            fetch('https://expansionbbv4.pythonanywhere.com/buscar_registro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
