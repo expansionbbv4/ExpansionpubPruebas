@@ -1,0 +1,31 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ] # Cambia a tu rama principal si es diferente (ej., "master")
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # O la versión que prefieras
+
+      - name: Install and Build (si necesitas construir tu frontend con un bundler)
+        # Si tu HTML/CSS/JS son estáticos y no necesitan build, puedes omitir este paso.
+        # Si usas un framework como React, Vue, etc., descomenta y adapta estos comandos.
+        # run: |
+        #   npm install
+        #   npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: . # Cambia a tu directorio de salida de build si lo usas (ej., "build")
