@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Búsqueda de Registros</title>
+    <title>Filtrar Sedes y Ver Proveedores</title>
     <style>
         body {
             font-family: sans-serif;
@@ -11,15 +11,18 @@
         .container {
             margin: 20px;
         }
-        .input-group {
-            margin-bottom: 10px;
+        .controls-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             margin-bottom: 5px;
         }
-        input[type="text"] {
-            width: 300px;
+        select {
+            width: 200px;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -32,91 +35,308 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .output-container {
+        .resultados-container {
             margin-top: 20px;
             border: 1px solid #eee;
             padding: 10px;
             border-radius: 4px;
             background-color: #f9f9f9;
         }
-        .output-container label {
+        .resultados-container h3 {
+            margin-top: 0;
+        }
+        .sede-boton {
             display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            text-align: left;
+            cursor: pointer;
+        }
+        .sede-boton:hover {
+            background-color: #eee;
+        }
+        .sede-seleccionada { /* Nueva clase para la sede seleccionada */
+            background-color: #cce5ff;
+            border-color: #b8daff;
+        }
+        .info-container {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        .info-container label {
             font-weight: bold;
             margin-bottom: 5px;
         }
-        .output-container textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            resize: vertical;
-            font-family: monospace; /* Para una mejor visualización de los datos */
+        .info-container div {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        #proveedor-principal-container {
+            display: none;
+        }
+        #avance-principal-container {
+            display: none;
+            margin-top: 10px;
+        }
+        #fecha-es-ans-principal-container {
+            display: none;
+            margin-top: 10px;
+        }
+        #proveedor-secundario-container {
+            display: none;
+            margin-top: 10px;
+        }
+        #avance-secundario-container {
+            display: none;
+            margin-top: 10px;
+        }
+        #fecha-es-ans-secundario-container {
+            display: none;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Buscar Registro</h2>
-        <div class="input-group">
-            <label for="columna_busqueda">Columna de Búsqueda:</label>
-            <input type="text" id="columna_busqueda" name="columna_busqueda">
+        <h2>Filtrar Sedes y Ver Proveedores</h2>
+        <div class="controls-container">
+            <div class="input-group">
+                <label for="estado_seleccionado">Estado:</label>
+                <select id="estado_seleccionado" name="estado_seleccionado">
+                    <option value="">Seleccione un estado</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="ciudad_seleccionada">Ciudad:</label>
+                <select id="ciudad_seleccionada" name="ciudad_seleccionada">
+                    <option value="">Seleccione una ciudad</option>
+                </select>
+            </div>
+            <button onclick="filtrarSedes()">Filtrar Sedes</button>
         </div>
-        <div class="input-group">
-            <label for="criterio_busqueda">Criterio de Búsqueda:</label>
-            <input type="text" id="criterio_busqueda" name="criterio_busqueda">
-        </div>
-        <button onclick="buscarRegistro()">Buscar</button>
 
-        <div id="resultados" class="output-container" style="display: none;">
-            <label for="fila_completa">Fila Encontrada:</label>
-            <textarea id="fila_completa" rows="10" readonly></textarea>
+        <div id="resultados" class="resultados-container" style="display: none;">
+            <h3>Sedes Encontradas:</h3>
+            <div id="lista_sedes">
+                </div>
+        </div>
+
+        <div id="proveedor-principal-container" class="info-container">
+            <label for="proveedor-principal">Proveedor Última Milla (MPLS Principal):</label>
+            <div id="proveedor-principal"></div>
+        </div>
+
+        <div id="avance-principal-container" class="info-container">
+            <label for="avance-principal">Avance (MPLS Principal):</label>
+            <div id="avance-principal"></div>
+        </div>
+
+        <div id="fecha-es-ans-principal-container" class="info-container">
+            <label for="fecha-es-ans-principal">Fecha ES ANS (MPLS Principal):</label>
+            <div id="fecha-es-ans-principal"></div>
+        </div>
+
+        <div id="proveedor-secundario-container" class="info-container">
+            <label for="proveedor-secundario">Proveedor Última Milla (MPLS Secundario):</label>
+            <div id="proveedor-secundario"></div>
+        </div>
+
+        <div id="avance-secundario-container" class="info-container">
+            <label for="avance-secundario">Avance (MPLS Secundario):</label>
+            <div id="avance-secundario"></div>
+        </div>
+
+        <div id="fecha-es-ans-secundario-container" class="info-container">
+            <label for="fecha-es-ans-secundario">Fecha ES ANS (MPLS Secundario):</label>
+            <div id="fecha-es-ans-secundario"></div>
         </div>
     </div>
 
     <script>
-        function buscarRegistro() {
-            const columnaBusqueda = document.getElementById("columna_busqueda").value;
-            const criterioBusqueda = document.getElementById("criterio_busqueda").value;
-            const resultadosDiv = document.getElementById("resultados");
-            const filaCompletaTextarea = document.getElementById("fila_completa");
-            resultadosDiv.style.display = "block";
-            filaCompletaTextarea.value = "";
+        let sedeSeleccionadaElement = null; // Variable para almacenar la sede seleccionada
 
-            // ¡ACTUALIZA LA URL AQUÍ!
-            fetch('https://expansionbbv4.pythonanywhere.com/buscar_registro', {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener estados
+            fetch('http://127.0.0.1:5000/obtener_estados')
+                .then(response => response.json())
+                .then(data => {
+                    const selectEstado = document.getElementById('estado_seleccionado');
+                    data.estados.forEach(estado => {
+                        const option = document.createElement('option');
+                        option.value = estado;
+                        option.textContent = estado;
+                        selectEstado.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al obtener los estados:", error);
+                });
+
+            // Obtener ciudades
+            fetch('http://127.0.0.1:5000/obtener_ciudades')
+                .then(response => response.json())
+                .then(data => {
+                    const selectCiudad = document.getElementById('ciudad_seleccionada');
+                    data.ciudades.forEach(ciudad => {
+                        const option = document.createElement('option');
+                        option.value = ciudad;
+                        option.textContent = ciudad;
+                        selectCiudad.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al obtener las ciudades:", error);
+                });
+        });
+
+        function filtrarSedes() {
+            const estadoSeleccionado = document.getElementById("estado_seleccionado").value;
+            const ciudadSeleccionada = document.getElementById("ciudad_seleccionada").value;
+            const resultadosDiv = document.getElementById("resultados");
+            const listaSedesDiv = document.getElementById("lista_sedes");
+            listaSedesDiv.innerHTML = "";
+            resultadosDiv.style.display = "block";
+            document.getElementById("proveedor-principal-container").style.display = "none";
+            document.getElementById("avance-principal-container").style.display = "none";
+            document.getElementById("fecha-es-ans-principal-container").style.display = "none";
+            document.getElementById("proveedor-secundario-container").style.display = "none";
+            document.getElementById("avance-secundario-container").style.display = "none";
+            document.getElementById("fecha-es-ans-secundario-container").style.display = "none";
+
+            if (!estadoSeleccionado || !ciudadSeleccionada) {
+                listaSedesDiv.innerHTML = "<p>Por favor, seleccione un estado y una ciudad.</p>";
+                return;
+            }
+
+            fetch('http://127.0.0.1:5000/filtrar_sedes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    columna_busqueda: columnaBusqueda,
-                    criterio_busqueda: criterioBusqueda
+                    estado: estadoSeleccionado,
+                    ciudad: ciudadSeleccionada
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data && typeof data === 'object') {
-                    let filaTexto = "";
-                    for (const key in data) {
-                        filaTexto += `${key}: ${data[key]}\n`;
-                    }
-                    filaCompletaTextarea.value = filaTexto;
+                if (data && data.sedes && data.sedes.length > 0) {
+                    data.sedes.forEach(sede => {
+                        const sedeBoton = document.createElement('div');
+                        sedeBoton.className = 'sede-boton';
+                        sedeBoton.textContent = sede;
+                        sedeBoton.addEventListener('click', function() {
+                            // Remover la clase de selección de la sede previamente seleccionada
+                            if (sedeSeleccionadaElement) {
+                                sedeSeleccionadaElement.classList.remove('sede-seleccionada');
+                            }
+                            // Agregar la clase de selección a la sede actual
+                            this.classList.add('sede-seleccionada');
+                            sedeSeleccionadaElement = this; // Actualizar la sede seleccionada
+                            obtenerProveedores(estadoSeleccionado, ciudadSeleccionada, sede);
+                        });
+                        listaSedesDiv.appendChild(sedeBoton);
+                    });
                 } else if (data && data.mensaje) {
-                    filaCompletaTextarea.value = data.mensaje;
+                    listaSedesDiv.innerHTML = `<p>${data.mensaje}</p>`;
                 } else if (data && data.error) {
-                    filaCompletaTextarea.value = `Error: ${data.error}`;
+                    listaSedesDiv.innerHTML = `<p>Error: ${data.error}`;
                 } else {
-                    filaCompletaTextarea.value = "Respuesta del servidor inesperada.";
+                    listaSedesDiv.innerHTML = "<p>No se encontraron sedes para la selección.</p>";
                 }
             })
             .catch(error => {
-                console.error("Error al buscar el registro:", error);
-                filaCompletaTextarea.value = "Error al comunicarse con el servidor.";
+                console.error("Error al filtrar las sedes:", error);
+                listaSedesDiv.innerHTML = "Error al comunicarse con el servidor.";
+            });
+        }
+
+        function obtenerProveedores(estado, ciudad, sede) {
+            const proveedorPrincipalContainer = document.getElementById("proveedor-principal-container");
+            const proveedorPrincipalDiv = document.getElementById("proveedor-principal");
+            const avancePrincipalContainer = document.getElementById("avance-principal-container");
+            const avancePrincipalDiv = document.getElementById("avance-principal");
+            const fechaEsAnsPrincipalContainer = document.getElementById("fecha-es-ans-principal-container");
+            const fechaEsAnsPrincipalDiv = document.getElementById("fecha-es-ans-principal");
+            const proveedorSecundarioContainer = document.getElementById("proveedor-secundario-container");
+            const proveedorSecundarioDiv = document.getElementById("proveedor-secundario");
+            const avanceSecundarioContainer = document.getElementById("avance-secundario-container");
+            const avanceSecundarioDiv = document.getElementById("avance-secundario");
+            const fechaEsAnsSecundarioContainer = document.getElementById("fecha-es-ans-secundario-container");
+            const fechaEsAnsSecundarioDiv = document.getElementById("fecha-es-ans-secundario");
+
+            // Obtener información principal
+            fetch('http://127.0.0.1:5000/obtener_proveedor_principal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    estado: estado,
+                    ciudad: ciudad,
+                    sede: sede
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                proveedorPrincipalContainer.style.display = "block";
+                avancePrincipalContainer.style.display = "block";
+                fechaEsAnsPrincipalContainer.style.display = "block";
+                proveedorPrincipalDiv.textContent = data.proveedor_principal || "Sin proveedor";
+                avancePrincipalDiv.textContent = data.avance_principal !== undefined && data.avance_principal !== null ? data.avance_principal : "Sin avance";
+                fechaEsAnsPrincipalDiv.textContent = data.fecha_es_ans_principal || "Sin fecha";
+            })
+            .catch(error => {
+                console.error("Error al obtener la información principal:", error);
+                proveedorPrincipalDiv.textContent = "Error al obtener información";
+                avancePrincipalDiv.textContent = "";
+                fechaEsAnsPrincipalDiv.textContent = "";
+                proveedorPrincipalContainer.style.display = "block";
+                avancePrincipalContainer.style.display = "block";
+                fechaEsAnsPrincipalContainer.style.display = "block";
+            });
+
+            // Obtener información secundaria
+            fetch('http://127.0.0.1:5000/obtener_proveedor_secundario', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    estado: estado,
+                    ciudad: ciudad,
+                    sede: sede
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                proveedorSecundarioContainer.style.display = "block";
+                avanceSecundarioContainer.style.display = "block";
+                fechaEsAnsSecundarioContainer.style.display = "block";
+                proveedorSecundarioDiv.textContent = data.proveedor_secundario || "Sin proveedor";
+                avanceSecundarioDiv.textContent = data.avance_secundario !== undefined && data.avance_secundario !== null ? data.avance_secundario : "Sin avance";
+                fechaEsAnsSecundarioDiv.textContent = data.fecha_es_ans_secundario || "Sin fecha";
+            })
+            .catch(error => {
+                console.error("Error al obtener la información secundaria:", error);
+                proveedorSecundarioDiv.textContent = "Error al obtener información";
+                avanceSecundarioDiv.textContent = "";
+                fechaEsAnsSecundarioDiv.textContent = "";
+                proveedorSecundarioContainer.style.display = "block";
+                avanceSecundarioContainer.style.display = "block";
+                fechaEsAnsSecundarioContainer.style.display = "block";
             });
         }
     </script>
