@@ -169,7 +169,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Obtener estados
-            fetch('http://127.0.0.1:5000/obtener_estados')
+            fetch('https://expansionbbv4.pythonanywhere.com/obtener_estados')
                 .then(response => response.json())
                 .then(data => {
                     const selectEstado = document.getElementById('estado_seleccionado');
@@ -185,7 +185,7 @@
                 });
 
             // Obtener ciudades
-            fetch('http://127.0.0.1:5000/obtener_ciudades')
+            fetch('https://expansionbbv4.pythonanywhere.com/obtener_ciudades')
                 .then(response => response.json())
                 .then(data => {
                     const selectCiudad = document.getElementById('ciudad_seleccionada');
@@ -220,7 +220,7 @@
                 return;
             }
 
-            fetch('http://127.0.0.1:5000/filtrar_sedes', {
+            fetch('https://expansionbbv4.pythonanywhere.com/filtrar_sedes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -278,7 +278,7 @@
             const fechaEsAnsSecundarioDiv = document.getElementById("fecha-es-ans-secundario");
 
             // Obtener información principal
-            fetch('http://127.0.0.1:5000/obtener_proveedor_principal', {
+            fetch('https://expansionbbv4.pythonanywhere.com/obtener_proveedor_principal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -309,7 +309,7 @@
             });
 
             // Obtener información secundaria
-            fetch('http://127.0.0.1:5000/obtener_proveedor_secundario', {
+            fetch('https://expansionbbv4.pythonanywhere.com/obtener_proveedor_secundario', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
